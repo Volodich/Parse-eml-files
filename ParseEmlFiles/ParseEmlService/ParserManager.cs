@@ -15,7 +15,7 @@ namespace ParseEmlFiles
     }
     public class ParserManager : IParserManager
     {
-        private readonly string _emailPattern = @"[A-Za-z0-9_\-\+]+@[A-Za-z0-9\-]+\.([A-Za-z]{2,3})(?:\.[a-z]{2})?";
+        private readonly string _emailPattern = "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*";
         private string _directorePath;
         private MimeReader _mimeReader;
         private RxMailMessage _rxMailMessage;
@@ -79,6 +79,19 @@ namespace ParseEmlFiles
             if(!string.IsNullOrEmpty(result))
             {
                 return result;
+            }
+
+            if (bodyText.Contains("\r\n"))
+            {
+                var strs = bodyText.Split("\r\n");
+                foreach (var str in strs)
+                {
+                    if (_regex.Match(str).Success)
+                    {
+                        return _regex.Match(str).Value;
+                    }
+                }
+                
             }
 
             throw new EmailNotFoundException("email not fount from file!");
